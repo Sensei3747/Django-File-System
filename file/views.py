@@ -49,3 +49,8 @@ def edit_user_profile(request, pk):
 def view_profiles(request):
     profiles = UserProfile.objects.all()
     return render(request, 'view_profiles.html', {'profiles': profiles})
+
+def delete_profile(request, profile_id):
+    profile = get_object_or_404(UserProfile, id=profile_id)
+    profile.delete()
+    return redirect('view_profiles')
