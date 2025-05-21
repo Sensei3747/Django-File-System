@@ -1,0 +1,49 @@
+# Python
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+*.pyc
+*.pdm.toml
+
+# Django
+*.sqlite3
+db.sqlite3
+*.log
+.env
+*.env
+.env.*
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
+
+# Node
+node_modules/
+npm-debug.log*
+package-lock.json
+
+# Tailwind Build Output
+static/css/styles.css
+static/css/styles.css.map
+
+# Optional if using Tailwind watch mode with temp output
+.tailwind-output.css
+
+# Migrations (optional - if auto-generated locally)
+**/migrations/*.py
+**/migrations/*.pyc
+!**/migrations/__init__.py
+
+# Compiled assets
+/staticfiles/
+/media/
+
+# Build directories
+build/
+dist/
+
+# OS-specific
+Thumbs.db
