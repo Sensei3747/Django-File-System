@@ -7,7 +7,7 @@ class UserProfileForm(forms.ModelForm):
 
     class Meta:
         model = UserProfile
-        fields = ['fname', 'lname', 'age', 'profile_photo_file']
+        fields = ['fname', 'lname', 'age', 'username', 'password', 'profile_photo_file']
 
     def clean_profile_photo_file(self):
         photo = self.cleaned_data.get('profile_photo_file')

@@ -1,0 +1,29 @@
+<h2>Chatting with {{ receiver.fname }} {{ receiver.lname }}</h2>
+
+<div id="chat-box">
+  {% for chat in chats %}
+    <p><strong>{{ chat.sender.fname }}:</strong> {{ chat.message }} ({{ chat.timestamp }})</p>
+  {% endfor %}
+</div>
+
+<input type="text" id="message-input">
+<button onclick="sendMessage()">Send</button>
+
+<script>
+  const socket = new WebSocket(
+    'ws://' + window.location.host + '/ws/chat/{{ receiver.id }}/'
+  );
+
+  socket.onmessage = function(e) {
+    const data = JSON.parse(e.data);
+    const msg = `<p><strong>${data.sender}:</strong> ${data.message} (${data.timestamp})</p>`;
+    document.getElementById('chat-box').innerHTML += msg;
+  };
+
+  function sendMessage() {
+    const messageInput = document.getElementById('message-input');
+    const message = messageInput.value;
+    socket.send(JSON.stringify({ message }));
+    messageInput.value = '';
+  }
+</script>

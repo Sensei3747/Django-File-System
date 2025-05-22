@@ -1,0 +1,11 @@
+<h2>Welcome {{ current_user.fname }}!</h2>
+<h3>Select someone to chat with:</h3>
+<ul>
+  {% for user in users %}
+    <li>
+        <a href="{% url 'chat-page' receiver_id=user.id %}"> 
+        {{ user.fname }} {{ user.lname }}
+      </a>
+    </li>
+  {% endfor %}
+</ul>
