@@ -3,6 +3,7 @@ import json
 from .models import ChatTable, UserProfile
 from datetime import datetime
 from asgiref.sync import sync_to_async
+from django.utils.timezone import localtime
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):

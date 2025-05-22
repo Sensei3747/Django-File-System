@@ -1,41 +1,346 @@
-<h2>Chatting with {{ receiver.fname }} {{ receiver.lname }}</h2>
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with {{ receiver.fname }} {{ receiver.lname }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex flex-col">
+    <!-- Chat Header -->
+    <div class="bg-white shadow-lg border-b border-gray-200 flex-shrink-0">
+        <div class="max-w-4xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <!-- Back Button -->
+                    <button onclick="history.back()" class="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
+                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                    </button>
+                    
+                    <!-- Receiver Avatar -->
+                    <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold shadow-lg">
+                        {{ receiver.fname|first|upper }}{{ receiver.lname|first|upper }}
+                    </div>
+                    
+                    <!-- Receiver Info -->
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-900">{{ receiver.fname }} {{ receiver.lname }}</h2>
+                        <p class="text-sm text-green-500 flex items-center">
+                            <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                            Online
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Chat Actions -->
+                <div class="flex items-center space-x-2">
+                    <button class="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
+                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<div id="chat-box">
-  {% for chat in chats %}
-    <p>
-      <strong>{{ chat.sender.fname }}:</strong> {{ chat.message }} ({{ chat.timestamp }})
-      {% if chat.sender.id == request.session.user_id %}
-        {% if chat.is_read %}
-          ✓
-        {% endif %}
-      {% endif %}
-    </p>
-  {% endfor %}
-</div>
+    <!-- Chat Messages Container -->
+    <div class="flex-1 overflow-hidden flex flex-col max-w-4xl mx-auto w-full">
+        <!-- Messages Area -->
+        <div class="flex-1 overflow-y-auto p-6 space-y-4" id="chat-box">
+            {% for chat in chats %}
+                {% if chat.sender.id == request.session.user_id %}
+                    <!-- Sent Message -->
+                    <div class="flex justify-end">
+                        <div class="max-w-xs lg:max-w-md">
+                            <div class="bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-2xl rounded-tr-md px-4 py-3 shadow-lg">
+                                <p class="text-sm">{{ chat.message }}</p>
+                            </div>
+                            <div class="flex items-center justify-end mt-1 space-x-1">
+                                <span class="text-xs text-gray-500">{{ chat.timestamp }}</span>
+                                {% if chat.is_read %}
+                                    <svg class="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                    </svg>
+                                {% else %}
+                                    <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                    </svg>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <!-- Received Message -->
+                    <div class="flex justify-start">
+                        <div class="max-w-xs lg:max-w-md">
+                            <div class="flex items-center space-x-2 mb-1">
+                                <div class="w-6 h-6 bg-gradient-to-br from-gray-400 to-gray-500 rounded-full flex items-center justify-center text-white text-xs font-semibold">
+                                    {{ chat.sender.fname|first|upper }}
+                                </div>
+                                <span class="text-xs font-medium text-gray-600">{{ chat.sender.fname }}</span>
+                            </div>
+                            <div class="bg-white border border-gray-200 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
+                                <p class="text-sm text-gray-800">{{ chat.message }}</p>
+                            </div>
+                            <div class="mt-1">
+                                <span class="text-xs text-gray-500">{{ chat.timestamp }}</span>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
 
-<input type="text" id="message-input">
-<button onclick="sendMessage()">Send</button>
+        <!-- Message Input Area -->
+        <div class="bg-white border-t border-gray-200 p-6 flex-shrink-0">
+            <div class="flex items-center space-x-4">
+                <!-- Attachment Button -->
+                <button class="p-2 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors duration-200">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+                    </svg>
+                </button>
+                
+                <!-- Message Input -->
+                <div class="flex-1 relative">
+                    <input 
+                        type="text" 
+                        id="message-input" 
+                        placeholder="Type a message..." 
+                        class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-full focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200 placeholder-gray-400"
+                        onkeypress="if(event.key==='Enter') sendMessage()"
+                    >
+                    <!-- Emoji Button -->
+                    <button class="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 text-gray-500 hover:text-indigo-600 rounded-full transition-colors duration-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- Send Button -->
+                <button 
+                    onclick="sendMessage()" 
+                    class="bg-gradient-to-r from-indigo-500 to-purple-500 text-white p-3 rounded-full hover:from-indigo-600 hover:to-purple-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transform transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
 
-<script>
-  const socket = new WebSocket(
-    'ws://' + window.location.host + '/ws/chat/{{ receiver.id }}/'
-  );
+    <script>
+        const currentUserId = {{ request.session.user_id }};
+        const currentUserName = "{{ request.user.fname|default:'You' }}";
+        
+        const socket = new WebSocket(
+            'ws://' + window.location.host + '/ws/chat/{{ receiver.id }}/'
+        );
 
-  socket.onmessage = function(e) {
-    const data = JSON.parse(e.data);
-    const tick = data.is_read ? ' ✓' : '';
-    const msg = `<p><strong>${data.sender}:</strong> ${data.message} (${data.timestamp})${tick}</p>`;
-    document.getElementById('chat-box').innerHTML += msg;
-  };
+        // Connection status handling
+        socket.onopen = function(e) {
+            console.log('WebSocket connection established');
+            const statusDiv = document.getElementById('connection-status');
+            if (statusDiv) {
+                statusDiv.style.display = 'none';
+            }
+        };
 
-  socket.onclose = function(e) {
-    console.error('Chat socket closed unexpectedly');
-  };
-  
-  function sendMessage() {
-    const messageInput = document.getElementById('message-input');
-    const message = messageInput.value;
-    socket.send(JSON.stringify({ message }));
-    messageInput.value = '';
-  }
-</script>
+        socket.onclose = function(e) {
+            console.log('WebSocket connection closed');
+            showConnectionStatus('Connection lost. Trying to reconnect...', 'error');
+            // Attempt to reconnect after 3 seconds
+            setTimeout(function() {
+                location.reload();
+            }, 3000);
+        };
+
+        socket.onerror = function(e) {
+            console.error('WebSocket error:', e);
+            showConnectionStatus('Connection error', 'error');
+        };
+
+        socket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            console.log('WebSocket data received:', data);
+            
+            // Convert IDs to numbers for proper comparison
+            const datasSenderId = parseInt(data.sender_id);
+            const currentUserIdInt = parseInt(currentUserId);
+            
+            // Check if this message is from the current user
+            const isCurrentUser = datasSenderId === currentUserIdInt;
+            
+            console.log('Current user ID:', currentUserIdInt, 'Sender ID:', datasSenderId, 'Is current user:', isCurrentUser);
+            
+            // Only add message if it's not already in the chat
+            if (!isDuplicateMessage(data)) {
+                addMessageToChat(data, isCurrentUser);
+            }
+        };
+
+        function isDuplicateMessage(data) {
+            // Check if message already exists by looking for similar content and timestamp
+            const chatBox = document.getElementById('chat-box');
+            const existingMessages = chatBox.querySelectorAll('.message-item');
+            
+            for (let messageDiv of existingMessages) {
+                const messageText = messageDiv.querySelector('p').textContent.trim();
+                const messageTime = messageDiv.querySelector('.text-xs').textContent.trim();
+                
+                if (messageText === data.message.trim() && 
+                    Math.abs(new Date() - new Date(messageTime)) < 5000) { // 5 second tolerance
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function addMessageToChat(data, isCurrentUser) {
+            const checkIcon = data.is_read ? 
+                '<svg class="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>' : 
+                '<svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>';
+            
+            let messageHtml;
+            
+            if (isCurrentUser) {
+                // Sent message - RIGHT side
+                messageHtml = `
+                    <div class="flex justify-end message-item" data-sender-id="${data.sender_id}">
+                        <div class="max-w-xs lg:max-w-md">
+                            <div class="bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-2xl rounded-tr-md px-4 py-3 shadow-lg">
+                                <p class="text-sm">${escapeHtml(data.message)}</p>
+                            </div>
+                            <div class="flex items-center justify-end mt-1 space-x-1">
+                                <span class="text-xs text-gray-500">${formatTimestamp(new Date())}</span>
+                                ${checkIcon}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Received message - LEFT side
+                const senderName = data.sender || data.sender_name || '{{ receiver.fname }}';
+                const senderInitial = senderName.charAt(0).toUpperCase();
+                
+                messageHtml = `
+                    <div class="flex justify-start message-item" data-sender-id="${data.sender_id}">
+                        <div class="max-w-xs lg:max-w-md">
+                            <div class="flex items-center space-x-2 mb-1">
+                                <div class="w-6 h-6 bg-gradient-to-br from-gray-400 to-gray-500 rounded-full flex items-center justify-center text-white text-xs font-semibold">
+                                    ${senderInitial}
+                                </div>
+                                <span class="text-xs font-medium text-gray-600">${escapeHtml(senderName)}</span>
+                            </div>
+                            <div class="bg-white border border-gray-200 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
+                                <p class="text-sm text-gray-800">${escapeHtml(data.message)}</p>
+                            </div>
+                            <div class="mt-1">
+                                <span class="text-xs text-gray-500">${formatTimestamp(new Date())}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Add message with animation
+            const chatBox = document.getElementById('chat-box');
+            const messageDiv = document.createElement('div');
+            messageDiv.innerHTML = messageHtml;
+            messageDiv.style.opacity = '0';
+            messageDiv.style.transform = 'translateY(20px)';
+            
+            chatBox.appendChild(messageDiv.firstElementChild);
+            
+            // Animate in
+            setTimeout(() => {
+                const addedMessage = chatBox.lastElementChild;
+                addedMessage.style.transition = 'all 0.3s ease';
+                addedMessage.style.opacity = '1';
+                addedMessage.style.transform = 'translateY(0)';
+            }, 10);
+            
+            // Auto scroll to bottom
+            setTimeout(() => {
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, 100);
+        }
+
+        function formatTimestamp(date) {
+            const hours = date.getHours();
+            const minutes = date.getMinutes();
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            const formattedHours = hours % 12 || 12;
+            const formattedMinutes = minutes.toString().padStart(2, '0');
+            return `${formattedHours}:${formattedMinutes} ${ampm}`;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showConnectionStatus(message, type) {
+            let statusDiv = document.getElementById('connection-status');
+            if (!statusDiv) {
+                statusDiv = document.createElement('div');
+                statusDiv.id = 'connection-status';
+                statusDiv.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-lg text-white text-sm z-50';
+                document.body.appendChild(statusDiv);
+            }
+            
+            statusDiv.textContent = message;
+            statusDiv.className = statusDiv.className.replace(/bg-\w+-500/, '');
+            statusDiv.classList.add(type === 'error' ? 'bg-red-500' : 'bg-green-500');
+            statusDiv.style.display = 'block';
+        }
+
+        function sendMessage() {
+            const messageInput = document.getElementById('message-input');
+            const message = messageInput.value.trim();
+            
+            if (message && socket.readyState === WebSocket.OPEN) {
+                const messageData = {
+                    message: message,
+                    sender_id: currentUserId,
+                    sender_name: currentUserName
+                };
+                
+                // Clear input immediately for better UX
+                messageInput.value = '';
+                
+                // Send the message
+                socket.send(JSON.stringify(messageData));
+                
+                console.log('Message sent:', messageData);
+            } else if (socket.readyState !== WebSocket.OPEN) {
+                showConnectionStatus('Connection lost. Please refresh the page.', 'error');
+            }
+        }
+
+        // Auto scroll to bottom on page load
+        window.addEventListener('load', function() {
+            const chatBox = document.getElementById('chat-box');
+            chatBox.scrollTop = chatBox.scrollHeight;
+        });
+
+        // Focus on input when page loads
+        document.getElementById('message-input').focus();
+
+        // Prevent page refresh on form submission
+        document.getElementById('message-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
