@@ -15,6 +15,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
 
+        await self.mark_messages_as_read()
+
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
 
@@ -35,9 +37,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'type': 'chat_message',
                 'message': message,
                 'sender': sender.fname,
-                'timestamp': chat.timestamp.strftime('%Y-%m-%d %H:%M:%S')
+                'timestamp': chat.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+                'is_read': False
             }
         )
+    @sync_to_async
+    def mark_messages_as_read(self):
+        ChatTable.objects.filter(
+            sender_id=self.receiver_id,
+            receiver_id=self.sender_id,
+            is_read=False
+        ).update(is_read=True)
 
     async def chat_message(self, event):
         await self.send(text_data=json.dumps(event))

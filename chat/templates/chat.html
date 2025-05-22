@@ -2,7 +2,14 @@
 
 <div id="chat-box">
   {% for chat in chats %}
-    <p><strong>{{ chat.sender.fname }}:</strong> {{ chat.message }} ({{ chat.timestamp }})</p>
+    <p>
+      <strong>{{ chat.sender.fname }}:</strong> {{ chat.message }} ({{ chat.timestamp }})
+      {% if chat.sender.id == request.session.user_id %}
+        {% if chat.is_read %}
+          ✓
+        {% endif %}
+      {% endif %}
+    </p>
   {% endfor %}
 </div>
 
@@ -16,10 +23,15 @@
 
   socket.onmessage = function(e) {
     const data = JSON.parse(e.data);
-    const msg = `<p><strong>${data.sender}:</strong> ${data.message} (${data.timestamp})</p>`;
+    const tick = data.is_read ? ' ✓' : '';
+    const msg = `<p><strong>${data.sender}:</strong> ${data.message} (${data.timestamp})${tick}</p>`;
     document.getElementById('chat-box').innerHTML += msg;
   };
 
+  socket.onclose = function(e) {
+    console.error('Chat socket closed unexpectedly');
+  };
+  
   function sendMessage() {
     const messageInput = document.getElementById('message-input');
     const message = messageInput.value;
